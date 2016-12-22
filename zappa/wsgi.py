@@ -35,10 +35,14 @@ def create_wsgi_request(event_info, server_name='zappa', script_name=None,
         #     body = base64.b64decode(encoded_body)
         # else:
 
-        body = event_info['body']
-        # Will this generate unicode errors?
-        # Early experiments indicate no, but this still looks unsafe to me.
-        body = str(body)
+        if event_info.get('isBase64Encoded', False):
+            encoded_body = event_info['body']
+            body = base64.b64decode(encoded_body)
+        else:
+            body = event_info['body']
+            # Will this generate unicode errors?
+            # Early experiments indicate no, but this still looks unsafe to me.
+            body = str(body)
 
         # Make header names canonical, e.g. content-type => Content-Type
         for header in headers.keys():
